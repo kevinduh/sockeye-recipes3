@@ -1,0 +1,3 @@
+[submodule "sockeye"]
+	path = sockeye
+	url = https://github.com/kevinduh/sockeye.git
