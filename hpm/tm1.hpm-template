@@ -35,23 +35,22 @@
 #####################################################################
 
 ### User-specified directories ###
-workdir=./
-modeldir=$workdir/tiny_transformer
-rootdir=../../
-# DESCRIPTION: tiny model for demo purposes
+workdir=__WORKDIR__
+modeldir=$workdir/tm1
+rootdir=__ROOTDIR__
 
 ### Language pair (source and target) ###
 # Note: We assume all bitext files contain these as suffices. 
 # e.g. $train_tok.$src, $train_tok.$trg refer to the source and target 
-src=de
-trg=en
+src=__SRC__
+trg=__TRG__
 
 ### Tokenized training and validation data ###
 # Note we assume tokenization is already done, and will only run BPE
 # For tokenization and other preprocessing, see preprocess-tokenize.sh
 # which does not use this hyperparam.txt file
-train_tok=./sample-de-en/train
-valid_tok=./sample-de-en/valid
+train_tok=__TRAIN_TOK__
+valid_tok=__VALID_TOK__
 
 
 #####################################################################
@@ -61,8 +60,8 @@ valid_tok=./sample-de-en/valid
 ### Number of symbols to use for BPE ###
 # Note: we perform source and target BPE separately
 # This corresponds to initial source (src) and target (trg) vocab size
-bpe_symbols_src=4000
-bpe_symbols_trg=4000
+bpe_symbols_src=30000
+bpe_symbols_trg=30000
 
 ### Filename for BPE-processed bitext file ###
 # Note: the following default names should be fine for most use cases
@@ -86,10 +85,10 @@ bpe_vocab_trg=${train_bpe_trg}.sentpiece
 # Model architecture
 encoder="transformer"
 decoder="transformer"
-num_layers="2:2"
-transformer_model_size=64
+num_layers="6:6"
+transformer_model_size=512
 transformer_attention_heads=8
-transformer_feed_forward_num_hidden=32
+transformer_feed_forward_num_hidden=2048
 
 # Training configuration
 optimized_metric=perplexity
@@ -101,8 +100,8 @@ initial_learning_rate=0.0002
 seed=13
 
 # Logging and stopping condition
-checkpoint_interval=20
-max_num_checkpoint_not_improved=8
-keep_last_params=-1
+checkpoint_interval=4000
+max_num_checkpoint_not_improved=32
+keep_last_params=1
 decode_and_evaluate=-1
 

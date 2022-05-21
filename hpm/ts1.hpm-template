@@ -91,6 +91,7 @@ transformer_attention_heads=8
 transformer_feed_forward_num_hidden=1024
 
 # Training configuration
+optimized_metric=perplexity
 embed_dropout=".0:.0"
 label_smoothing=0.1
 batch_size=4096
@@ -101,9 +102,6 @@ seed=13
 # Logging and stopping condition
 checkpoint_interval=4000
 max_num_checkpoint_not_improved=32
-min_num_epochs=0
-max_num_epochs=100
-max_updates=500000
-keep_last_params=5
+keep_last_params=1
 decode_and_evaluate=-1
 

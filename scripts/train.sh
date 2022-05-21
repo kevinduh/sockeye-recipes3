@@ -7,7 +7,7 @@ function errcho() {
 }
 
 function show_help() {
-  errcho "Usage: train.sh -p hyperparams.txt -e ENV_NAME [-d DEVICE]"
+  errcho "Usage: train.sh -p hyperparams.txt -e ENV_NAME [-d DEVICE] [-r EXTRA_SOCKEYE_ARGUMENTS]"
   errcho ""
 }
 
@@ -19,7 +19,7 @@ function check_file_exists() {
 }
 
 
-while getopts ":h?p:e:d:" opt; do
+while getopts ":h?p:e:d:r:" opt; do
   case "$opt" in
     h|\?)
       show_help
@@ -30,6 +30,8 @@ while getopts ":h?p:e:d:" opt; do
     e) ENV_NAME=$OPTARG
       ;;
     d) DEVICE=$OPTARG
+      ;;
+    r) EXTRA_ARGS=$OPTARG
       ;;
   esac
 done
@@ -66,11 +68,18 @@ source $rootdir/scripts/arguments-for-train.sh -p $HYP_FILE
 
 ###########################################
 # (2) Train the model (this may take a while) 
-python -m sockeye.train -s $train_bpe_src \
-                        -t $train_bpe_trg \
+prepared_data=${train_bpe_src}.${src}-${trg}.prepared_data
+if [ -s "$prepared_data" ] ; then
+    echo "Reuse existing prepared data: $prepared_data" >> $modeldir/cmdline.log
+else
+    echo "Creating prepared data file: $prepared_data" >> $modeldir/cmdline.log
+    python -m sockeye.prepare_data -s $train_bpe_src -t $train_bpe_trg -o $prepared_data 
+fi
+
+python -m sockeye.train -d $prepared_data \
                         -vs $valid_bpe_src \
                         -vt $valid_bpe_trg \
-                        $trainargs
+                        $trainargs $EXTRA_ARGS
 
 
 ##########################################
