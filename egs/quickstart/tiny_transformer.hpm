@@ -103,6 +103,7 @@ seed=13
 # Logging and stopping condition
 checkpoint_interval=20
 max_num_checkpoint_not_improved=8
+max_num_epochs=2
 keep_last_params=-1
 decode_and_evaluate=-1
 
