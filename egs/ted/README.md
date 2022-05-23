@@ -35,7 +35,7 @@ Now, we can preprocess the tokenized training and dev data using BPE.
 
 The resulting BPE vocabulary file (for English) is: `data-bpe/train.bpe-30000.en.sentpiece.vocab` and the segmented training file is: `data-bpe/train.bpe-30000.en`. For Chinese, replace `en` by `zh`. These are the files we train on. 
 
-To train, we will use qsub and gpu (On a Tesla V100, this should take about 6 hours):
+To train, we will use qsub and gpu (On a Tesla V100, this should take about 3 hours):
 
 ```bash
 qsub -S /bin/bash -V -cwd -q gpu.q -l gpu=1,h_rt=12:00:00,num_proc=1 -j y ../../../scripts/train-textformat.sh -p ts1.hpm -e sockeye3
@@ -68,28 +68,29 @@ sacrebleu --tokenize none ../multitarget-ted/en-zh/tok/ted_test1_en-zh.tok.en < 
 This should give a BLEU score of around 16-17.
 
 
-### Benchmark Results (Old results from sockeye-recipes2. Need to be updated)
+### Benchmark Results
 
 The test set BLEU scores of various tasks are:
 
- task | ts1   | tb2   | tb3   | tm1   | tm2   | b2-e6d2 |
-  --- | ---   | ---   | ---   | ---   | ---   | ---     |
-ar-en | 28.75 | 29.33 | 28.16 | 29.16 | 28.74 | 28.72   |
-bg-en | 36.84 | 36.07 | 35.17 | 36.88 | 36.16 | 34.95   |
-cs-en | 27.82 | 28.19 | 25.57 | 27.65 | 26.38 | 25.70   |
-de-en | 33.75 | 33.04 | 31.61 | 33.50 | 33.10 | 32.62   |
-fa-en | 22.59 | 22.31 | 20.92 | 22.41 | 21.79 | 21.16   |
-fr-en | 35.81 | 35.53 | 34.53 | 35.81 | 35.53 | 34.84   |
-he-en | 35.02 | 34.43 | 33.30 | 34.82 | 35.04 | 33.87   |
-hu-en | 22.49 | 22.16 | 20.13 | 22.53 | 21.13 | 20.76   |
-id-en | 27.92 | 28.03 | 27.11 | 26.29 | 27.44 | 26.86   |
-ja-en | 12.47 | 11.87 | 10.66 | 11.80 | 12.19 | 11.81   |
-ko-en | 16.16 | 16.03 | 14.35 | 15.81 | 15.83 | 15.69   |
-pl-en | 24.66 | 24.28 | 23.28 | 23.96 | 24.05 | 23.33   |
-pt-en | 42.40 | 41.74 | 40.93 | 41.99 | 41.80 | 40.95   |
-ro-en | 36.27 | 35.69 | 34.60 | 36.04 | 36.17 | 34.74   |
-ru-en | 24.49 | 23.66 | 23.17 | 24.03 | 23.88 | 22.55   |
-tr-en | 24.12 | 23.03 | 21.90 | 24.26 | 22.43 | 23.04   |
-uk-en | 19.30 | 20.06 | 18.77 | 17.57 | 19.13 | 19.09   |
-vi-en | 26.38 | 25.79 | 24.63 | 25.66 | 25.57 | 24.73   |
-zh-en | 17.01 | 16.30 | 15.70 | 16.73 | 16.31 | 15.93   |
+ task | ts1 | tm1 |
+  --- | --- | --- |
+ar-en | 28.7 | 29.1 |
+bg-en | 35.9 | 37.4 |
+cs-en | 27.3 | 27.6 |
+de-en | 33.5 | 33.4 |
+fa-en | 22.7 | 23.3 |
+fr-en | 36.3 | 36.3 |
+he-en | 34.2 | 34.7 |
+hu-en | 21.9 | 22.1 |
+id-en | 27.5 | 27.1 |
+ja-en | 11.8 | 11.9 |
+ko-en | 14.7 | 15.6 |
+pl-en | 24.4 | 24.3 |
+pt-en | 41.8 | 42.1 |
+ro-en | 35.6 | 35.5 |
+ru-en | 23.3 | 23.0 |
+tr-en | 23.1 | 23.6 |
+uk-en | 18.8 | 18.4 |
+vi-en | 25.5 | 25.8 |
+zh-en | 16.2 | 16.9 |
+
