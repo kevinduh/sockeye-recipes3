@@ -1,0 +1,32 @@
+workdir: ./models
+rootdir: ../../
+src: zh
+trg: en
+train_tok: ../ted/multitarget-ted/en-zh/tok/ted_train_en-zh.tok.clean
+valid_tok: ../ted/multitarget-ted/en-zh/tok/ted_dev_en-zh.tok
+bpe_symbols_src:
+- 30000
+- 10000
+bpe_symbols_trg:
+- 30000
+encoder: transformer
+decoder: transformer
+num_layers:
+- "4:2"
+- "6:3"
+transformer_model_size: [512, 1024]
+transformer_attention_heads: 8
+transformer_feed_forward_num_hidden: 2048
+optimized_metric: perplexity
+embed_dropout:
+- ".0:.0"
+label_smoothing: 0.1
+batch_size: 4096
+update_interval: 1
+initial_learning_rate: [0.0002, 0.002]
+seed: 13
+checkpoint_interval: 4000
+max_num_checkpoint_not_improved: 32
+max_num_epochs: 100
+keep_last_params: 1
+decode_and_evaluate: -1
