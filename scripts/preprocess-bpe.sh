@@ -65,7 +65,7 @@ $rootdir/scripts/sentpiece.py encode --input=$valid_tok.$src --model=$bpe_vocab_
 ###########################################
 # (3) BPE on target side
 echo `date '+%Y-%m-%d %H:%M:%S'` "- Learning BPE on target and creating vocabulary: $bpe_vocab_trg"
-$rootdir/scripts/sentpiece.py train --input=$train_tok.$trg --vocab_size=$bpe_symbols_trg --model_type=bpe --model_prefix=$bpe_vocab_trg --character_coverage=0.9995
+$rootdir/scripts/sentpiece.py train --input=$train_tok.$trg --vocab_size=$bpe_symbols_trg --model_type=bpe --model_prefix=$bpe_vocab_trg --character_coverage=${character_coverage}
 
 echo `date '+%Y-%m-%d %H:%M:%S'` "- Applying BPE, creating: ${train_bpe_trg}, ${valid_bpe_trg}" 
 $rootdir/scripts/sentpiece.py encode --input=$train_tok.$trg --model=$bpe_vocab_trg.model > $train_bpe_trg

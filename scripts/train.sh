@@ -71,7 +71,7 @@ fi
 
 ###########################################
 # (2) Train the model (this may take a while) 
-prepared_data=${train_bpe_src}.${src}-${trg}.prepared_data
+prepared_data=${train_bpe_src}.${src}${bpe_symbols_src}-${trg}${bpe_symbols_trg}.prepared_data
 if [ -s "$prepared_data" ] ; then
     echo "Reuse existing prepared data: $prepared_data" >> $modeldir/cmdline.log
 else
