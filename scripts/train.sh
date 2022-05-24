@@ -31,7 +31,7 @@ while getopts ":h?p:e:d:r:" opt; do
       ;;
     d) DEVICE=$OPTARG
       ;;
-    r) EXTRA_ARGS=$OPTARG
+    r) EXTRA_ARGS_CMDLINE=$OPTARG
       ;;
   esac
 done
@@ -64,7 +64,10 @@ echo "$devicelog" >> $modeldir/cmdline.log
 
 # this script generates $trainargs which contains standard arguments for sockeye.train
 source $rootdir/scripts/arguments-for-train.sh -p $HYP_FILE
-
+if [[ -n "$EXTRA_ARGS_CMDLINE" ]]; then
+    EXTRA_ARGS="$EXTRA_ARGS $EXTRA_ARGS_CMDLINE"
+    echo "EXTRA_ARGS=\"$EXTRA_ARGS\"" >> $modeldir/hyperparams.txt
+fi
 
 ###########################################
 # (2) Train the model (this may take a while) 
