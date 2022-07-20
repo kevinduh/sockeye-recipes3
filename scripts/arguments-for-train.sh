@@ -58,7 +58,7 @@ trainargs="--encoder $encoder \
            --amp \
            --checkpoint-interval $checkpoint_interval \
            --max-num-checkpoint-not-improved $max_num_checkpoint_not_improved \
-           --max-num-epochs $max_num_epochs \
+           --max-checkpoints $max_checkpoints \
            --keep-last-params $keep_last_params \
            --decode-and-evaluate $decode_and_evaluate \
            -o $modeldir"
