@@ -33,7 +33,16 @@ class JobManager:
                            'modeldir': modeldir,
                            'max_checkpoints': str(self.r)}
             update_hpm(hpm_path, update_dict)
-        
+    
+    def qdel(self, hpm):
+        with subprocess.Popen(["qstat"], stdout=subprocess.PIPE) as proc:
+            qstat_lines = proc.stdout.read().decode('utf-8')
+        for line in qstat_lines.split('\n'):
+            if "gpu.q" in line and "asha" in line and os.path.basename(hpm)[:-4] in line:
+                job_id = line.split()[0]
+                os.system("qdel " + job_id)
+                time.sleep(15)
+
     def qsub_train(self, job_log_dir, hpm):
         with open("qsub.sh") as f:
             qsub_line = f.readlines()[1].strip()
@@ -99,6 +108,7 @@ class JobManager:
             return 0
         elif (train_job_state == SUCCESS or train_job_state == CONVERGED) \
              and (val_job_state == NOTEXIST or val_job_state == ERROR):
+            self.qdel(hpm)
             if self.num_avail_gpus() > 0:
                 self.qsub_val(job_log_dir, hpm, modeldir)
             return 0
@@ -110,10 +120,19 @@ class JobManager:
         elif train_job_state == CONVERGED and val_job_state == SUCCESS:
             return 2
         elif train_job_state == GPU_ERROR:
+            self.qdel(hpm)
             if self.num_avail_gpus() > 0:
                 self.qsub_train(job_log_dir, hpm)
             return 0
         elif train_job_state == MEM_ERROR:
+            self.qdel(hpm)
             return -1
         elif train_job_state == RUNNING or train_job_state == NOTEXIST:
             return 0
+        elif train_job_state == STORAGE_ERROR or val_job_state == STORAGE_ERROR:
+            print("Storage error occurred for " + hpm + \
+                ". The current run of automl will end shortly." \
+                "Please make sure there's enough space on your disk before resume the job.")
+            self.logging.info("The job is interrupted because there's not enough space on the disk.")
+            self.qdel(hpm)
+            return 3

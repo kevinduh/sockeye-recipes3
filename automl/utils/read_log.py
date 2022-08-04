@@ -32,6 +32,8 @@ def check_train_states(model_path):
                 return GPU_ERROR
             elif "CUDA out of memory" in l:
                 return MEM_ERROR
+            elif "Stale file handle" in l:
+                return STORAGE_ERROR
         if "Training finished" in lines[0]:
             return SUCCESS
         return RUNNING
@@ -50,7 +52,9 @@ def check_valid_states(model_path):
             for l in f.readlines():
                 if "Uncaught exception" in l:
                     return ERROR
-                if "Processed" in l:
+                elif "Stale file handle" in l:
+                    return STORAGE_ERROR
+                elif "Processed" in l:
                     return SUCCESS
             return RUNNING
     else:
