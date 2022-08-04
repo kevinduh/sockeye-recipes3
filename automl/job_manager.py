@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+import shutil
 import subprocess
 import time
+import datetime
 
 from constants import *
 from utils.hpm_file import update_hpm
@@ -34,11 +36,13 @@ class JobManager:
                            'max_checkpoints': str(self.r)}
             update_hpm(hpm_path, update_dict)
     
-    def qdel(self, hpm):
+    def qdel(self, hpm, modeldir):
         with subprocess.Popen(["qstat"], stdout=subprocess.PIPE) as proc:
             qstat_lines = proc.stdout.read().decode('utf-8')
         for line in qstat_lines.split('\n'):
             if "gpu.q" in line and "asha" in line and os.path.basename(hpm)[:-4] in line:
+                shutil.move(os.path.join(modeldir, "log"), \
+                    os.path.join(modeldir, "log_"+"T".join(str(datetime.datetime.now()).split())))
                 job_id = line.split()[0]
                 os.system("qdel " + job_id)
                 time.sleep(15)
@@ -120,12 +124,12 @@ class JobManager:
         elif train_job_state == CONVERGED and val_job_state == SUCCESS:
             return 2
         elif train_job_state == GPU_ERROR:
-            self.qdel(hpm)
+            self.qdel(hpm, modeldir)
             if self.num_avail_gpus() > 0:
                 self.qsub_train(job_log_dir, hpm)
             return 0
         elif train_job_state == MEM_ERROR:
-            self.qdel(hpm)
+            self.qdel(hpm, modeldir)
             return -1
         elif train_job_state == RUNNING or train_job_state == NOTEXIST:
             return 0
@@ -134,5 +138,5 @@ class JobManager:
                 ". The current run of automl will end shortly." \
                 "Please make sure there's enough space on your disk before resume the job.")
             self.logging.info("The job is interrupted because there's not enough space on the disk.")
-            self.qdel(hpm)
+            self.qdel(hpm, modeldir)
             return 3
