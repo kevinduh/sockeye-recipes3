@@ -41,8 +41,9 @@ class JobManager:
             qstat_lines = proc.stdout.read().decode('utf-8')
         for line in qstat_lines.split('\n'):
             if "gpu.q" in line and "asha" in line and os.path.basename(hpm)[:-4] in line:
-                shutil.move(os.path.join(modeldir, "log"), \
-                    os.path.join(modeldir, "log_"+"T".join(str(datetime.datetime.now()).split())))
+                if os.path.exists(os.path.join(modeldir, "log")):
+                    shutil.move(os.path.join(modeldir, "log"), \
+                        os.path.join(modeldir, "log_"+"T".join(str(datetime.datetime.now()).split())))
                 job_id = line.split()[0]
                 os.system("qdel " + job_id)
                 time.sleep(15)
