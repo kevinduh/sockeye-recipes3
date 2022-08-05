@@ -113,7 +113,7 @@ class JobManager:
             return 0
         elif (train_job_state == SUCCESS or train_job_state == CONVERGED) \
              and (val_job_state == NOTEXIST or val_job_state == ERROR):
-            self.qdel(hpm)
+            self.qdel(hpm, modeldir)
             if self.num_avail_gpus() > 0:
                 self.qsub_val(job_log_dir, hpm, modeldir)
             return 0
