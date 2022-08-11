@@ -20,6 +20,7 @@ class AutomlThread(Thread):
         self.asha = asha
 
     def run(self):
+        finished = self.func(self.args, self.jobmanager, self.asha)
         while not self.stopped.wait(self.args.timer_interval):
             if self.stopped.is_set():
                 break
@@ -45,6 +46,8 @@ def run_asha(args, jobmanager, asha):
                 jobmanager.update_hpm_to_next_rung(hpm, asha.config_states[config]['rung']+1)
             elif state == 2:
                 asha.config_states[config]['converged'] = True
+            elif state == 3:
+                return True
 
     num_avail_gpu = jobmanager.num_avail_gpus()
     print("\nnum_avail_gpu ", num_avail_gpu)
@@ -52,7 +55,7 @@ def run_asha(args, jobmanager, asha):
         config_converged = True
         while config_converged:
             candidates = asha.get_candidates()
-            print("asha.current_run: ", asha.current_run)
+            #print("asha.current_run: ", asha.current_run)
             #print("Candidates: ", " ".join([str(c) for c in candidates]))
             if candidates == []:
                 if asha.current_run == []:
@@ -72,7 +75,7 @@ def run_asha(args, jobmanager, asha):
             asha.promote(next_cand)
             hpm = asha.i2h[next_cand]
             jobmanager.qsub_train(args.job_log_dir, hpm)
-        print("current run after promotion: ", asha.current_run)
+        #print("current run after promotion: ", asha.current_run)
         print("\n")
     asha.log_state()
     save_asha_state(asha, jobmanager, args.ckpt, asha.logging)

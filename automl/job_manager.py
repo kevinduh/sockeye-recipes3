@@ -63,7 +63,7 @@ class JobManager:
         params = [p for p in os.listdir(modeldir) if p.startswith('params')]
         if "params.best" not in params:
             params.sort(key=lambda p: int(p[-5:]))
-            os.system("ln -s " + params[-1] + " params.best")
+            os.system("ln -s " + modeldir + "/" + params[-1] + " " + modeldir + "/params.best")
         with open("qsub.sh") as f:
             qsub_line = f.readlines()[3].strip()
         qsub_line = qsub_line.format(os.path.join(job_log_dir, os.path.basename(hpm)[:-4]+'_val'),
@@ -74,7 +74,8 @@ class JobManager:
         time.sleep(15)
     
     def update_hpm_to_next_rung(self, hpm, target_rung):
-        maxe = min(self.r + self.u * target_rung, self.R)
+        pree = min(self.r + self.u * (target_rung-1), self.R)
+        maxe = min(self.r + self.u * target_rung, self.R) - pree
         dict = {'max_checkpoints': maxe}
         update_hpm(hpm, dict)
 
