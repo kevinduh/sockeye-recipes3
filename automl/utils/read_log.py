@@ -20,8 +20,13 @@ def check_train_states(model_path):
     Check the training states of a model.
     States: SUCCESS, GPU_ERROR, MEM_ERROR, RUNNING
     '''
-    log_path = os.path.join(model_path, "log")
-    if os.path.exists(log_path):
+    log_files = [l for l in os.listdir(model_path) if l.startswith('log')]
+    if log_files != []:
+        if 'log' in log_files:
+            log_name = 'log'
+        else:
+            log_name = sorted(log_files)[-1]
+        log_path = os.path.join(model_path, log_name)
         with open(log_path) as f:
             lines = f.readlines()
             lines.reverse()
