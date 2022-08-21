@@ -69,7 +69,8 @@ class ASHA:
             # print("****tops_to_next_rung ", topk_to_next_rung)
             bleu_lst = [] 
             gpu_time_lst = []
-            for config in finished_configs:
+            finished_configs = set(finished_configs) - set(self.blacklist)
+            for config in list(finished_configs):
                 bleu_lst.append(self.config_states[config]['bleus'][rung])
                 gpu_time_lst.append(self.config_states[config]['gpu_times'][rung])
             if self.multi_objective:
@@ -102,10 +103,10 @@ class ASHA:
                 next_finished = []
                 next_running = []
             if rung > 0:
-                pre_finished = set(self.rung_states[rung-1]['finished']) - set(self.blacklist)
+                pre_finished = set(self.rung_states[rung-1]['finished'])
                 tops_finished = self.tops(rung-1, pre_finished)
             else:
-                tops_finished = set(self.configs) - set(running) - set(finished) - set(self.blacklist)
+                tops_finished = set(self.configs) - set(running) - set(finished)
             candidates_this_rung = set(tops_finished) - set(next_finished) - set(next_running) \
                  - set(finished) - set(running)
             print("rung ", rung, "candidates ", candidates_this_rung)
@@ -162,33 +163,36 @@ class ASHA:
             if finished != []:
                 log_string += '-'*20 + '\n'
                 log_string += "Rung " + str(rung) + ":\n"
-                fin_str = ''
-                bleu_str = ''
-                gpu_str = ''
-                fin_id_str = ''
-                for fin in finished:
-                    fin_id_str += str(fin).ljust(10)
-                    fin_str += str(self.i2n[fin]).ljust(10)
-                    bleu_str += str(self.config_states[fin]['bleus'][rung]).ljust(10)
-                    if self.multi_objective:
-                        gpu_str += str(self.config_states[fin]['gpu_times'][rung]).ljust(10)
-
-                log_string += 'Finished Jobs'.ljust(16) + fin_str + "\n"
-                log_string += 'Ids'.ljust(16) + fin_id_str + "\n"
-                log_string += 'BLEU'.ljust(16) + bleu_str + "\n"
-                if gpu_str != '':
-                    log_string += 'decoding time'.ljust(16) + gpu_str + "\n"
+                num_line_groups = math.ceil(len(finished) / 10)
+                for nlg in range(num_line_groups):
+                    fin_str = ''
+                    bleu_str = ''
+                    gpu_str = ''
+                    fin_id_str = ''
+                    for fin in finished[nlg*10: (nlg+1)*10]:
+                        fin_id_str += str(fin).ljust(10)
+                        fin_str += str(self.i2n[fin]).ljust(10)
+                        bleu_str += str(self.config_states[fin]['bleus'][rung]).ljust(10)
+                        if self.multi_objective:
+                            gpu_str += str(self.config_states[fin]['gpu_times'][rung]).ljust(10)
+                    log_string += 'Finished Jobs'.ljust(16) + fin_str + "\n"
+                    log_string += 'Ids'.ljust(16) + fin_id_str + "\n"
+                    log_string += 'BLEU'.ljust(16) + bleu_str + "\n"
+                    if gpu_str != '':
+                        log_string += 'decoding time'.ljust(16) + gpu_str + "\n"
+                    log_string += "\n"
         self.logging.info(str(log_string)) 
 
     def finish_asha(self):
         self.logging.info("ASHA finished successfully!")
         self.log_state()
-        best_config = self.rung_states[self.max_rung]["finished"][0]
+        best_config = self.i2n[self.rung_states[self.max_rung]["finished"][0]]
         log_str = ""
         if self.blacklist != []:
             log_str += "Configs that failed training because of GPU Memory error:\n"
-            log_str += ", ".join([str(self.i2n[b]) + "("+str(b)+")" for b in self.blacklist])
-        log_str += "Best config: " + str(best_config) + "\n" + \
+            log_str += ", ".join([str(self.i2n[b]) for b in self.blacklist])
+            log_str += "\n"
+        log_str += "Best config: " + str(best_config) + "\t" + \
             "BLEU: " + str(self.config_states[best_config]['bleu'])
         if self.multi_objective:
             log_str += "\t decoding time: " + \

@@ -30,8 +30,6 @@ def load_asha_state(load_path, logging):
     keys = ['config_states', 'rung_states', 'i2h', 'i2n']
     for key in keys:
         asha[key] = dict(map(lambda x: (int(x[0]), x[1]), asha[key].items()))
-    print("rung states: ", asha['rung_states'])
-    print("config states: ", asha['config_states'])
     jm = state_dict['jobmanager']
     asha['logging'] = logging
     jm['logging'] = logging
@@ -41,3 +39,4 @@ def load_asha_state(load_path, logging):
         'maximum checkpoints (R): ' + str(jm['R']) + '\n' +
         'reduction rate (p): ' + str(asha['p']) + '\n'))
     return asha, jm
+    

@@ -129,8 +129,10 @@ def main():
     if args.resume_from_ckpt != None and os.path.exists(args.resume_from_ckpt):
         asha_state_dict, jobmanager_state_dict = \
             load_asha_state(args.resume_from_ckpt, logging)
-        asha.__setstate__(asha_state_dict)
-        jobmanager.__setstate__(jobmanager_state_dict)
+        new_asha_state_dict = jobmanager.resume(asha_state_dict, jobmanager_state_dict)
+        asha.__setstate__(new_asha_state_dict)
+        print("rung states: ", new_asha_state_dict['rung_states'])
+        print("config states: ", new_asha_state_dict['config_states'])
  
     stopFlag = Event()
     automl_thread = AutomlThread(stopFlag, run_asha, args, jobmanager, asha)

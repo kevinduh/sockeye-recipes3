@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import glob
 import subprocess
 import time
 import datetime
@@ -37,16 +38,21 @@ class JobManager:
             update_hpm(hpm_path, update_dict)
     
     def qdel(self, hpm, modeldir):
+        config_name = os.path.basename(hpm)[:-4]
         with subprocess.Popen(["qstat"], stdout=subprocess.PIPE) as proc:
             qstat_lines = proc.stdout.read().decode('utf-8')
         for line in qstat_lines.split('\n'):
-            if "gpu.q" in line and "asha" in line and os.path.basename(hpm)[:-4] in line:
-                if os.path.exists(os.path.join(modeldir, "log")):
-                    shutil.move(os.path.join(modeldir, "log"), \
-                        os.path.join(modeldir, "log_"+"T".join(str(datetime.datetime.now()).split())))
+            if line.split() != []:
                 job_id = line.split()[0]
-                os.system("qdel " + job_id)
-                time.sleep(15)
+                if "gpu.q" in line and ("ashat"+config_name in line.split() \
+                or "ashav"+config_name in line.split()):
+                    if os.path.exists(os.path.join(modeldir, "log")):
+                        shutil.move(os.path.join(modeldir, "log"), \
+                            os.path.join(modeldir, "log_"+"T".join(str(datetime.datetime.now()).split())))
+                    os.system("qdel " + job_id)
+                    qdel_line = "qdel " + config_name
+                    self.logging.info(qdel_line)
+                    time.sleep(15)
 
     def qsub_train(self, job_log_dir, hpm):
         with open("qsub.sh") as f:
@@ -142,3 +148,30 @@ class JobManager:
             self.logging.info("The job is interrupted because there's not enough space on the disk.")
             self.qdel(hpm, modeldir)
             return 3
+
+    def resume(self, asha_state_dict, jm_state_dict):
+        self.__setstate__(jm_state_dict)
+        current_run = asha_state_dict['current_run']
+        modelsdir = '/'.join(list(asha_state_dict['i2h'].values())[0].split('/')[:-2]) + "/models/"
+        new_current_run = []
+        for cr in current_run:
+            config_id = asha_state_dict['i2n'][cr]
+            modeldir = modelsdir + str(config_id)
+            train_job_state = check_train_states(modeldir)
+            val_job_state = check_valid_states(modeldir)
+            if train_job_state == RUNNING or train_job_state == NOTEXIST:
+                for rung in asha_state_dict['rung_states'].keys():
+                    if cr in asha_state_dict['rung_states'][rung]['running']:
+                        asha_state_dict['rung_states'][rung]['running'].remove(cr)
+                tlog = modeldir + "/log"
+                if os.path.exists(tlog):
+                    os.remove(tlog)
+            else:
+                new_current_run.append(cr)
+            if val_job_state == RUNNING:
+                vlogs = glob.glob(modeldir + "/*.1best.log")
+                if vlogs != []:
+                    vlog = vlogs[0]
+                    os.remove(vlog)
+        asha_state_dict['current_run'] = new_current_run
+        return asha_state_dict
