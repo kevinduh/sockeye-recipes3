@@ -106,7 +106,7 @@ class ASHA:
                 pre_finished = set(self.rung_states[rung-1]['finished'])
                 tops_finished = self.tops(rung-1, pre_finished)
             else:
-                tops_finished = set(self.configs) - set(running) - set(finished)
+                tops_finished = set(self.configs) - set(running) - set(finished) - set(self.blacklist)
             candidates_this_rung = set(tops_finished) - set(next_finished) - set(next_running) \
                  - set(finished) - set(running)
             print("rung ", rung, "candidates ", candidates_this_rung)

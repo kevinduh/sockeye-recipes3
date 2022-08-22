@@ -46,11 +46,11 @@ class JobManager:
                 job_id = line.split()[0]
                 if "gpu.q" in line and ("ashat"+config_name in line.split() \
                 or "ashav"+config_name in line.split()):
-                    if os.path.exists(os.path.join(modeldir, "log")):
+                    if "ashat" in line and os.path.exists(os.path.join(modeldir, "log")):
                         shutil.move(os.path.join(modeldir, "log"), \
                             os.path.join(modeldir, "log_"+"T".join(str(datetime.datetime.now()).split())))
                     os.system("qdel " + job_id)
-                    qdel_line = "qdel " + config_name
+                    qdel_line = "qdel " + config_name + " " + job_id
                     self.logging.info(qdel_line)
                     time.sleep(15)
 
