@@ -51,6 +51,13 @@ class ASHA:
         if item in lst:
             lst.remove(item)
         return lst
+
+    def _get_rung_blacklist(self, r):
+        blk_r = []
+        for b in self.blacklist:
+            if self.config_states[str(b)]['rung'] == r:
+                blk_r.append(b)
+        return blk_r
     
     def tops(self, rung, finished_configs):
         '''
@@ -60,7 +67,8 @@ class ASHA:
         Return the top s config candidates to that can be moved to the next rung.
         '''
         topk_to_next_rung = math.floor(self.n*self.p**(-rung-1))
-        n_this_rung = math.floor(self.n*self.p**(-rung))
+        blacklist_this_rung = self._get_rung_blacklist(rung)
+        n_this_rung = math.floor(self.n*self.p**(-rung)) - len(blacklist_this_rung)
         if len(finished_configs) > n_this_rung - topk_to_next_rung:
             tops_to_next_rung = min(len(finished_configs) - (n_this_rung-topk_to_next_rung), \
                 topk_to_next_rung)
