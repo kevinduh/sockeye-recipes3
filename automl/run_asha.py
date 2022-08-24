@@ -9,6 +9,7 @@ from job_manager import JobManager
 from asha import ASHA
 from utils.write_log import init_log, save_asha_state, load_asha_state
 from utils.check_args import check_args
+import sys
 
 class AutomlThread(Thread):
     def __init__(self, event, func, args, jobmanager, asha):
@@ -111,7 +112,7 @@ def main():
     FORMAT = '%(asctime)s %(message)s'
     logging.basicConfig(handlers=[
                             logging.FileHandler(os.path.join(args.workdir, 'log')),
-                            logging.StreamHandler()],                   
+                            logging.StreamHandler(stream=sys.stdout)],                   
                         level=logging.INFO, format=FORMAT)
     init_log(args, logging)
 
@@ -133,6 +134,8 @@ def main():
         asha.__setstate__(new_asha_state_dict)
         print("rung states: ", new_asha_state_dict['rung_states'])
         print("config states: ", new_asha_state_dict['config_states'])
+        jobmanager.num_gpu = args.G
+        jobmanager.R = args.R
  
     stopFlag = Event()
     automl_thread = AutomlThread(stopFlag, run_asha, args, jobmanager, asha)

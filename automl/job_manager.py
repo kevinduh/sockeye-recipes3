@@ -50,7 +50,7 @@ class JobManager:
                         shutil.move(os.path.join(modeldir, "log"), \
                             os.path.join(modeldir, "log_"+"T".join(str(datetime.datetime.now()).split())))
                     os.system("qdel " + job_id)
-                    qdel_line = "qdel " + config_name + " " + job_id
+                    qdel_line = "qdel " + config_name + " " + line
                     self.logging.info(qdel_line)
                     time.sleep(15)
 
