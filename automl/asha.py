@@ -55,7 +55,7 @@ class ASHA:
     def _get_rung_blacklist(self, r):
         blk_r = []
         for b in self.blacklist:
-            if self.config_states[str(b)]['rung'] == r:
+            if self.config_states[b]['rung'] == r:
                 blk_r.append(b)
         return blk_r
     
