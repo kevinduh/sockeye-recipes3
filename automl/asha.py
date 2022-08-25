@@ -194,15 +194,16 @@ class ASHA:
     def finish_asha(self):
         self.logging.info("ASHA finished successfully!")
         self.log_state()
-        best_config = self.i2n[self.rung_states[self.max_rung]["finished"][0]]
+        best_config_id = self.rung_states[self.max_rung]["finished"][0]
+        best_config = self.i2n[best_config_id]
         log_str = ""
         if self.blacklist != []:
             log_str += "Configs that failed training because of GPU Memory error:\n"
             log_str += ", ".join([str(self.i2n[b]) for b in self.blacklist])
             log_str += "\n"
         log_str += "Best config: " + str(best_config) + "\t" + \
-            "BLEU: " + str(self.config_states[best_config]['bleu'])
+            "BLEU: " + str(self.config_states[best_config_id]['bleu'])
         if self.multi_objective:
             log_str += "\t decoding time: " + \
-                str(self.config_states[best_config]["gpu_time"])
+                str(self.config_states[best_config_id]["gpu_time"])
         self.logging.info(str(log_str))
