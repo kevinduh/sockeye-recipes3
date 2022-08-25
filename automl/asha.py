@@ -198,7 +198,7 @@ class ASHA:
         best_config = self.i2n[best_config_id]
         log_str = ""
         if self.blacklist != []:
-            log_str += "Configs that failed training because of GPU Memory error:\n"
+            log_str += "Configs that failed training because of GPU Memory error or OverflowError:\n"
             log_str += ", ".join([str(self.i2n[b]) for b in self.blacklist])
             log_str += "\n"
         log_str += "Best config: " + str(best_config) + "\t" + \

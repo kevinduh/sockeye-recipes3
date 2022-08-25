@@ -37,6 +37,8 @@ def check_train_states(model_path):
                 return GPU_ERROR
             elif "CUDA out of memory" in l:
                 return MEM_ERROR
+            elif "OverflowError" in l:
+                return MATH_ERROR
             elif "Stale file handle" in l:
                 return STORAGE_ERROR
         if "Training finished" in lines[0]:
