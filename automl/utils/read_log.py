@@ -39,6 +39,8 @@ def check_train_states(model_path):
                 return MEM_ERROR
             elif "OverflowError" in l:
                 return MATH_ERROR
+            elif "Best validation perplexity: inf" in l or "Train-ppl=nan" in l:
+                return DIVERGED
             elif "Stale file handle" in l:
                 return STORAGE_ERROR
         if "Training finished" in lines[0]:

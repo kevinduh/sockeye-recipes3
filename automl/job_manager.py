@@ -136,7 +136,7 @@ class JobManager:
             if self.num_avail_gpus() > 0:
                 self.qsub_train(job_log_dir, hpm)
             return 0
-        elif train_job_state == MEM_ERROR or train_job_state == MATH_ERROR:
+        elif train_job_state == MEM_ERROR or train_job_state == MATH_ERROR or train_job_state == DIVERGED:
             self.qdel(hpm, modeldir)
             return -1
         elif train_job_state == RUNNING or train_job_state == NOTEXIST:
