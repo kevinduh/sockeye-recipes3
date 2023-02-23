@@ -2,7 +2,7 @@ import json
 
 def init_log(args, logging):
     logging.info(str('Run ASHA with Arguments: ' + '\n' +
-                 'minimum number of chckpoints (r): ' + str(args.r) + '\n' + 
+                 'minimum number of checkpoints (r): ' + str(args.r) + '\n' + 
                  'number of checkpoints per rung (u): ' + str(args.u) + '\n' +
                  'maximum checkpoints (R): ' + str(args.R) + '\n' +
                  'reduction rate (p): ' + str(args.p) + '\n' +
@@ -12,7 +12,7 @@ def init_log(args, logging):
     if args.multi_objective:
         logging.info('Multi-objective optimization: BLEU and decoding time will be optimized at the same time.')
     else:
-        logging.info('Single-objective optimizagtion: BLEU will be optimized.')
+        logging.info('Single-objective optimization: BLEU will be optimized.')
 
 
 def save_asha_state(asha, jobmanager, save_path, logging):
@@ -34,7 +34,7 @@ def load_asha_state(load_path, logging):
     asha['logging'] = logging
     jm['logging'] = logging
     logging.info(str('Loaded ASHA states from: ' + load_path + "\n" + \
-        'minimum number of chckpoints (r): ' + str(jm['r']) + '\n' +\
+        'minimum number of checkpoints (r): ' + str(jm['r']) + '\n' +\
         'number of checkpoints per rung (u): ' + str(jm['u']) + '\n' +
         'maximum checkpoints (R): ' + str(jm['R']) + '\n' +
         'reduction rate (p): ' + str(asha['p']) + '\n'))

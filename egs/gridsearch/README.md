@@ -1,4 +1,4 @@
-## Hypeparameter Optimization with Grid Search
+## Hyperparameter Optimization with Grid Search
 
 This recipe demonstrates how to setup grid search, trying all combinations of hyperparameters.
 

@@ -34,7 +34,7 @@ conda remove --name sockeye3 --all
 
 ## Recipes 
 
-The `egs` subdirectory contains recipes for various datasets. 
+The [egs](egs) subdirectory contains recipes for various datasets. 
 
 * [egs/quickstart](egs/quickstart): For first time users, this recipe explains how sockeye-recipe works. 
 
@@ -62,14 +62,15 @@ Building NMT systems can be a tedious process involving lenghty experimentation 
 - train.sh is the main training script. Specify a new modeldir for each train.sh run. The hyperparms.txt file used in training will be saved in modeldir for future reference. 
 - At the end, your workingdir will have a single datadir containing multiple BPE'ed versions of the bitext, and multiple modeldir's. You can run tensorboard on all these modeldir's concurrently to compare learning curves.
 
-There are many options in Sockeye. Currently not all of them are used in sockeye-recipes; more will be added. See [sockeye/arguments.py](https://github.com/kevinduh/sockeye/blob/master/sockeye/arguments.py) for detailed explanations. 
-
-Alternatively, directly call sockeye with the help option as below. Note that sockeye-recipe hyperameters have the same name as sockeye hyperparameters, except that sockeye-recipe hyperparameters replace the hyphen with underscore (e.g. --num-embed in sockeye becomes $num_embed in sockeye-recipes):
+There are many options in Sockeye, as shown in the help message:
  
 ```bash
 conda activate sockeye3
 python -m sockeye.train --help
 ```
+
+Note that sockeye-recipe hyperameters have the same name as sockeye hyperparameters, except that sockeye-recipe hyperparameters replace the hyphen with underscore (e.g. --num-embed in sockeye becomes $num_embed in sockeye-recipes). The most commonly-used hyperparameters are exposed in sockeye-recipes hpm files, but it is possible to define anything. 
+
 
 ## Hyperparameter Optimization (AutoML) 
 

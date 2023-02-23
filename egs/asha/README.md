@@ -1,6 +1,6 @@
 ## Hyperparameter Optimization with Asynchronous Successive Halving Algorithm (ASHA)
 
-This example implements the ASHA for Sockeye. 
+This example implements ASHA for Sockeye. 
 ASHA is a bandit learning algorithm that looks at the learning curves of multiple training runs. 
 Not-so-promising runs are terminated early, in order to allocate more computational resources to promising runs. 
 It balances exploration (trying new configurations) with exploitation (training promising configurations for longer). 
@@ -12,8 +12,8 @@ The method assumes that learning curves are comparable at intermediate points, a
 
 ![SHA illustration](sha-illustration.png)
 
-ASHA is the asychronous version of the Successive Halving algorithm. For more info, refer to::
-* Paper: Liam Li. et. al., [A system for Massively Parallel Hyperparameter Tuning](https://arxiv.org/pdf/1810.05934.pdf))  
+ASHA is the asychronous version of the Successive Halving algorithm. For more info, refer to:
+* Paper: Liam Li. et. al., [A System for Massively Parallel Hyperparameter Tuning](https://arxiv.org/pdf/1810.05934.pdf)), Proc. of ML & Sys, 2020 
 * [Blog post](https://blog.ml.cmu.edu/2018/12/12/massively-parallel-hyperparameter-optimization/) by the original authors
 
 ### Usage overview:
@@ -30,7 +30,7 @@ The file `space1/hpm-space.yaml` gives an example hyperparameter space.
 It is similar to that of [egs/gridsearch](../gridsearch).
 The most common hyperparameters are in the example, but the toolkit is flexible to any user-defined hyperparameter. 
 
-For example, the snippet below says that the user wishes to search over two options for `bpe_symbols_src`, one option for `bpe_symbols_trg`, and three options for `transformer_model_size`. Make sure to change the `rootdir` in `hpm-space.yaml` to your local installation of sockeye-recipes3, `workdir` to this directory (e.g. `$rootdir/egs/asha/space1/`), and `train_tok`/`valid_tok` to the data paths in your own settings; absolute paths is recommended since this is the blueprint from generating various hpm files, which may be moved around. 
+For example, the snippet below says that the user wishes to search over two options for `bpe_symbols_src`, one option for `bpe_symbols_trg`, and three options for `transformer_model_size`. Make sure to change the `rootdir` in `hpm-space.yaml` to your local installation of sockeye-recipes3, `workdir` to this directory (e.g. `$rootdir/egs/asha/space1/`), and `train_tok`/`valid_tok` to the data paths in your own settings; absolute paths are recommended since this is the blueprint from generating various hpm files, which may be moved around. 
 
 ```
 workdir: /exp/xzhang/sockeye-recipes3/egs/asha/space1/
@@ -54,6 +54,7 @@ For this example (TED ZH-EN), we assume the bitext is unpacked. If not, follow t
 cd ../ted
 sh ./0_download_data.sh
 sh ./1_setup_task.sh zh
+cd ../asha
 ```
 
 ### 2. Generate configurations (hpm files)
