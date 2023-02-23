@@ -70,3 +70,8 @@ python $sockeye_root/automl/posthoc_analysis.py -m models -d ebm
 
 This will read all the training logs from models/ subdirectory and save the EBM visualizations to ebm/
 See [Post-Hoc Interpretation of Transformer Hyperparameters with Explainable Boosting Machines](https://aclanthology.org/2022.blackboxnlp-1.5.pdf) for details.
+
+## Cleanup
+
+Grid search and various AutoML methods like ASHA may generate many subdirectories, taking up much disk space. 
+Use `scripts/cleanup.py` to delete some of the files in models/ programmatically.
