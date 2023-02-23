@@ -1,6 +1,6 @@
 # sockeye-recipes3
 
-Training scripts and recipes for the Sockeye Neural Machine Translation (NMT) toolkit
+Training scripts, recipes, and hyperparameter optimization for the Sockeye Neural Machine Translation (NMT) toolkit
 - The original Sockeye codebase is at [AWS Labs](https://github.com/awslabs/sockeye). This repo is based off [a stable fork](https://github.com/kevinduh/sockeye), version: 3.1.14
 - Here we focus on Sockeye v3. This repo is similar but not exactly back-compatible with the older version of [sockeye-recipes for Sockeye v2](https://github.com/kevinduh/sockeye-recipes2).
 
@@ -10,6 +10,7 @@ All model hyperparameters are documented in a file "hyperparams.txt", which are 
 - scripts/train.sh: Train the NMT model given bitext
 - scripts/translate.sh: Translates a tokenized input file using an existing model
 
+We also implement Hyperparameter Optimization methods (AutoML) to make it easy to efficiently find a near-optimal model for a given dataset. 
 
 ## Installation
 First, clone this package: 
@@ -69,3 +70,17 @@ Alternatively, directly call sockeye with the help option as below. Note that so
 conda activate sockeye3
 python -m sockeye.train --help
 ```
+
+## Hyperparameter Optimization (AutoML) 
+
+Hyperparameters are important to the model building process; manual tuning can be laborious. 
+There are various scenarios where we may want an automated hyperparameter optimization process: 
+(1) Given a new dataset for a new domain or language-pair, one may wish to find a strong baseline through rigorous hyperparameter optimization. 
+(2) Given a novel NMT implementation, one may wish to try a broad range of hyperparameters to ensure that the innovation is sufficiently tested. 
+
+The `automl` subdirectory contains code for hyperparameter optimization. The `egs` subdirectory contains some example methods:
+
+* [egs/gridsearch](egs/gridsearch): Grid search is a straightforward (but potentially expensive) brute-force method. The code here illustrates how the repo manages multiple training runs. 
+
+* [egs/asha](egs/asha): Asynchronous Successive Halving Algorithm (ASHA) is a bandit learning method that learns to automatically terminate training runs that appear less promising than others. It is effective for large hyperparameter spaces on large grid setups. 
+
