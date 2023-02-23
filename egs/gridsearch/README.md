@@ -50,3 +50,23 @@ Following the instructions, we first run `/bin/sh prep.sh`. This will run prepro
 Next, we can look at the generated hpm files in `models/*.hpm`. There are 16 in total, corresponding to the cross product of two BPE choices, two layer choices, two model size choices, and two learning rate choices specified in the example `hpm-space.yaml`. 
 
 Finally, run the `qsub` command (or whichever variant that is suitable on your system) to run train these models. 
+
+## Post-hoc analysis
+
+Given a group of trained model directories, we may wish to understand better how the hyperparameters interact with each other and with BLEU score. 
+We provide a simple script `posthoc_analysis.py` to do this using Explainable Boosting Machines (EBM).. 
+
+First, we need to install some dependencies:
+```
+conda activate sockeye3
+/bin/sh $sockeye_root/install/install_3rdparty.sh
+```
+
+Next, simply run:
+```
+mkdir ebm
+python $sockeye_root/automl/posthoc_analysis.py -m models -d ebm
+```
+
+This will read all the training logs from models/ subdirectory and save the EBM visualizations to ebm/
+See [Post-Hoc Interpretation of Transformer Hyperparameters with Explainable Boosting Machines](https://aclanthology.org/2022.blackboxnlp-1.5.pdf) for details.
