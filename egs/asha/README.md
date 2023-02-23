@@ -1,16 +1,26 @@
 ## Hyperparameter Optimization with Asynchronous Successive Halving Algorithm (ASHA)
 
-This example implements the ASHA paper ([A system for Massively Parallel Hyperparameter Tuning](https://arxiv.org/pdf/1810.05934.pdf)) for Sockeye. 
-ASHA is a bandit learning algorithm that looks at the learning curves of multiple training runs. Not-so-promising runs are terminated early, in order to allocate more computational resources to promising runs. It balances exploration (trying new configurations) with exploitation (training promising configurations for longer). 
-ASHA is the asychronous version of the Successive Halving algorithm. 
-For more info, refer to the paper or to the [blog post](https://blog.ml.cmu.edu/2018/12/12/massively-parallel-hyperparameter-optimization/) by the original authors, Liam Li et. al. 
+This example implements the ASHA for Sockeye. 
+ASHA is a bandit learning algorithm that looks at the learning curves of multiple training runs. 
+Not-so-promising runs are terminated early, in order to allocate more computational resources to promising runs. 
+It balances exploration (trying new configurations) with exploitation (training promising configurations for longer). 
+
+The figure below illustrates the concept of Successive Halving. 
+Suppose four configurations are run. At checkpoint 1, we terminate config 3 and config 4 because they have the worst BLEU scores so far. 
+We promote the better half, config 1 and config 2. This halving repeats again at checkpoint 2, and in the end only config 1 is run to completion. 
+The method assumes that learning curves are comparable at intermediate points, and is efficient by spending compute resources only on promising configurations. 
 
 ![SHA illustration](sha-illustration.png)
 
+ASHA is the asychronous version of the Successive Halving algorithm. For more info, refer to::
+* Paper: Liam Li. et. al., [A system for Massively Parallel Hyperparameter Tuning](https://arxiv.org/pdf/1810.05934.pdf))  
+* [Blog post](https://blog.ml.cmu.edu/2018/12/12/massively-parallel-hyperparameter-optimization/) by the original authors
+
+### Usage overview:
 
 There are 4 steps: 
 1. Design hyperparameter space (space.yaml)
-2. Generate/sample actual configurations 
+2. Generate actual configurations as hpm files
 3. Run ASHA
 4. Analyze stored results
 
@@ -18,10 +28,37 @@ There are 4 steps:
 
 The file `space1/hpm-space.yaml` gives an example hyperparameter space. 
 It is similar to that of [egs/gridsearch](../gridsearch).
+The most common hyperparameters are in the example, but the toolkit is flexible to any user-defined hyperparameter. 
+
+For example, the snippet below says that the user wishes to search over two options for `bpe_symbols_src`, one option for `bpe_symbols_trg`, and three options for `transformer_model_size`. Make sure to change the `rootdir` in `hpm-space.yaml` to your local installation of sockeye-recipes3, `workdir` to this directory (e.g. `$rootdir/egs/asha/space1/`), and `train_tok`/`valid_tok` to the data paths in your own settings; absolute paths is recommended since this is the blueprint from generating various hpm files, which may be moved around. 
+
+```
+workdir: /exp/xzhang/sockeye-recipes3/egs/asha/space1/
+rootdir: /exp/xzhang/sockeye-recipes3/
+src: zh
+trg: en
+train_tok: /exp/xzhang/sockeye-recipes3/egs/ted/multitarget-ted/en-zh/tok/ted_train_en-zh.tok.clean
+valid_tok: /exp/xzhang/sockeye-recipes3/egs/ted/multitarget-ted/en-zh/tok/ted_dev_en-zh.tok
+bpe_symbols_src:
+- 30000
+- 10000
+bpe_symbols_trg:
+- 30000
+transformer_model_size: [256, 512, 1024]
+..
+```
+
+For this example (TED ZH-EN), we assume the bitext is unpacked. If not, follow the instructions in [egs/ted](../ted) Setup:
+
+```
+cd ../ted
+sh ./0_download_data.sh
+sh ./1_setup_task.sh zh
+```
 
 ### 2. Generate configurations (hpm files)
 
-First, we use `generate_hpm.py` to generate the Cartesian product of all hyperparameter choices (like in gridsearch). Prior to running, make sure to change the `rootdir` in `hpm-space.yaml` to your local installation of sockeye-recipes3 and `workdir` to this directory (e.g. `...../asha/space1/`); since we will be moving some hpm files around, it is easiest to set absolute paths for these two variables. 
+First, we use `generate_hpm.py` to generate the Cartesian product of all hyperparameter choices (like in gridsearch). 
 
 ```
 cd space1
@@ -39,13 +76,14 @@ mkdir -p data-bpe
 Next, we will sample a subset of the hpm files for an actual run.
 In the following, the subdir run1 will perform ASHA for up to 20 hpm files.
 On the other hand, the subdir run2 will use all the 144 hpm files. 
-The reason for this extra manual step is allow for different kinds of hyperparameter optimization runs.  
+The reason for this extra manual step is to allow for different kinds of hyperparameter optimization experiments.
 
 ```
 mkdir -p hpms
 mv *.hpm hpms/
 python ../../../automl/generate_hpm_subspace.py run1 20 
 python ../../../automl/generate_hpm_subspace.py run2 144
+ls run1/hpms/*.hpm
 ```
 
 Observe there are 20 random hpm files in `space1/run1/hpms/`, sampled from `space1/hpms/`.
@@ -63,21 +101,29 @@ cp $rootdir/automl/submit_run_asha.sh .
 vi submit_run_asha.sh
 ```
 
-Note that the script looks like this:
+Note that the script looks like below; make sure to modify rootdir to your sockeye-recipes3 root. 
 
 ```
-python run_asha.py  -r 1 \
+#!/bin/sh
+
+rootdir=/exp/xzhang/sockeye-recipes3/
+rundir=$rootdir/egs/asha/space1/run1
+
+python $rootdir/automl/run_asha.py \
+                    -r 1 \
                     -u 1 \
                     -R 6\
                     -p 2 \
                     -G 4 \
                     --timer-interval 90 \
-                    --workdir /exp/xzhang/sockeye-recipes3/egs/asha/space1/run1 \
-                    --job-log-dir /exp/xzhang/sockeye-recipes3/egs/asha/space1/run1/job_logs \
-                    --ckpt /exp/xzhang/sockeye-recipes3/egs/asha/space1/run1/ckpt.json \
-                    --multi-objective
-                    #--resume-from-ckpt /exp/xzhang/sockeye-recipes3/egs/asha/space1/run1/ckpt.json
+                    --workdir $rootdir/egs/asha/space1/run1 \
+                    --job-log-dir $rundir/job_logs \
+                    --ckpt $rundir/ckpt.json \
+                    #--multi-objective \
+                    #--resume-from-ckpt $rundir/ckpt.json
 ```
+
+The flags for `run_asha.py` are: 
 
 | run_asha.py flag | description |
 | ---------------- | ----------- |
@@ -97,11 +143,9 @@ The flag -r specifies how many checkpoints are in the first rung of ASHA.
 The flag -u specifies how many checkpoints are in each subsequent rung. 
 The flag -R says no configuration may be trained more than that many checkpoints. 
 
-Together, these should be set in consideration with the actual number of batches per checkpoint (in the hpm file). The recommendation is to set -r at the point when you think learning curves start to become comparable. -u and -R are perhaps less sensitive. 
+Together, these should be set in consideration with the actual number of batches per checkpoint (`checkpoint_interval` in the hpm file). The recommendation is to set -r at the point when you think learning curves start to become comparable. -u and -R are perhaps less sensitive. Please modify `submit_run_automl.sh` it according to your local setup. 
 
-Please modify `submit_run_automl.sh` it according to your local setup. 
-
-We also need to specify the qsub commands. Copy the example and modify it according to your needs. 
+We also need to specify the qsub commands for the actual training and validation jobs. Copy the example and modify it according to your needs. 
 
 ```
 cp $rootdir/automl/qsub.sh .
@@ -118,8 +162,10 @@ Once that is ready, we can start ASHA, sit back, and relax!
 /bin/sh submit_run_automl.sh
 ```
 
-Check out `ckpt.json` at any time for the status of the ASHA run. 
-Here is an example snippet, with explanations:
+### 4. Analyze results
+
+We can check out `ckpt.json` at any time for the status of the ASHA run. 
+Here is an example snippet:
 
 ```
 {'asha': {'blacklist': [], # hpm's may be blacklisted if it constantly fails to train
@@ -191,4 +237,12 @@ Rung 4:
 Finished Jobs   142
 Ids             17
 BLEU            12.5
+```
+
+Finally, if desired, we can run post-hoc analysis on all the training run logs. 
+Please refer to `posthoc_analysis.py` instructions in [egs/gridsearch](../gridsearch)
+
+ASHA may generate many files. To clean up diskspace: 
+```
+python $rootdir/scripts/cleanup.py $rootdir/egs/asha/space1/run1/models/
 ```
