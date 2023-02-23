@@ -5,6 +5,9 @@ ASHA is a bandit learning algorithm that looks at the learning curves of multipl
 ASHA is the asychronous version of the Successive Halving algorithm. 
 For more info, refer to the paper or to the [blog post](https://blog.ml.cmu.edu/2018/12/12/massively-parallel-hyperparameter-optimization/) by the original authors, Liam Li et. al. 
 
+![SHA illustration](sha-illustration.png)
+
+
 There are 4 steps: 
 1. Design hyperparameter space (space.yaml)
 2. Generate/sample actual configurations 
